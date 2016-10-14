@@ -25,6 +25,7 @@ public:
     void setData(void* data, int size);
     void setDestination(int dest);
     void print();
+    void setName(const char* n);
 
 private:
     // we must be able to share the
@@ -35,6 +36,7 @@ private:
     int m_msgId;
     int m_mask;
     int m_serverKey;    
+    char m_name[64];
 };
 
 }

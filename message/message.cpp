@@ -44,13 +44,14 @@ msg::msg(const msg &ref)
     m_msgId = ref.m_msgId;
     m_mask = ref.m_mask;
     m_serverKey = ref.m_serverKey;
+    strncpy(m_name, ref.m_name, sizeof(m_name)/sizeof(m_name[0]));
 }
-#if 0
+/*
 msg::~msg()
 {
 
 }
-#endif
+*/
 int msg::getKey() const
 {
     return m_key;
@@ -168,14 +169,21 @@ void msg::setDestination(int dest)
 void msg::print()
 {
     printf("class msg:\n"
+           "name: [%s]\n"
            "key: [%d]\n"
            "id: [%d]\n"
            "send to: [%d]\n"
            "mask: [%d]\n"
            "server: [%d]\n",
+           m_name,
            m_key, m_msgId, m_dest,
            m_mask,
            m_serverKey);
+}
+
+void msg::setName(const char *n)
+{
+    strncpy(m_name, n, sizeof(m_name)/sizeof(m_name[0]));
 }
 
 }
