@@ -3,6 +3,7 @@
 
 // this class specifies the message
 // that is send and recieved trough processes
+// every program must know about messages
 namespace ipc {
 
 /// the msg may be further
@@ -18,10 +19,8 @@ class msg
     } ;
 public:
     explicit msg(int server, int key, int mask);
-    virtual ~msg();
-
-    virtual bool trySend(msg& receiver);
-    virtual bool tryReceive(msg& sender);
+    msg(const msg& ref);
+    ~msg(); // do we need to extend it? not for now
 
     // these functions will be sending keys via
     // processes
@@ -31,22 +30,24 @@ public:
     int getKey() const;
     void setKey(int newkey);
     void setData(void* data, int size);
-    node_t getData();
+    void setDestination(int dest);
 
+    node_t getData();
     void print();
+
 private:
     // we must be able to share the
     // key and retrieve it to whoever got
     //it
     int m_key;
+    int m_dest;
     int m_msgId;
     int m_mask;
 
     int m_serverKey;
     node_t m_dataNode;
-    node_t m_currentMsg;
-
 };
+
 }
 
 

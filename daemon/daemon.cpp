@@ -1,5 +1,4 @@
 #include "daemon.h"
-#include "msg.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -28,11 +27,7 @@ namespace ipc {
 
 int Daemon::dummy(void *data)
 {
-    msg* message = (msg*) data;
     int key, mask, msgid;
-    message->a = 10000;
-    message->b = 20000;
-    message->c = 30000;
 
     key = 1234;
     mask = 0666;
@@ -45,8 +40,8 @@ int Daemon::dummy(void *data)
     }
 
     for(;;) {
-        char buff[sizeof(msg)] = {0};
-        memcpy(buff, message, sizeof(msg));
+        char buff[1024] = {0};
+
         int ret = msgsnd(msgid, buff, sizeof(buff), IPC_NOWAIT);
         if (ret == -1) {
             if (errno != EAGAIN) {

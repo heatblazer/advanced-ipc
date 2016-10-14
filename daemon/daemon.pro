@@ -4,9 +4,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    daemon.cpp \
-    msg.cpp
+    daemon.cpp
 
 HEADERS += \
-    daemon.h \
-    msg.h
+    daemon.h

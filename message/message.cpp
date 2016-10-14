@@ -13,13 +13,22 @@ namespace ipc {
 
 msg::msg(int server, int key, int mask)
     : m_key(key),
+      m_dest(-1),
       m_msgId(-1),
       m_mask(mask),
       m_serverKey(server), // key to the router
-      m_dataNode({NULL, 0}),
-      m_currentMsg({NULL, 0})
+      m_dataNode({NULL, 0})
 {
 
+}
+
+msg::msg(const msg &ref)
+{
+    m_key = ref.m_key;
+    m_msgId = ref.m_msgId;
+    m_mask = ref.m_mask;
+    m_serverKey = ref.m_serverKey;
+    m_dataNode = ref.m_dataNode;
 }
 
 msg::~msg()
@@ -32,73 +41,9 @@ int msg::getKey() const
     return m_key;
 }
 
-bool msg::trySend(msg &receiver)
-{
-    (void) receiver;
-    bool res = false;
-    m_msgId = msgget(receiver.getKey(), m_mask);
-    if (m_msgId == -1) {
-        // noone create it
-        if ((m_msgId = msgget(receiver.getKey(), m_mask | IPC_CREAT)) == -1) {
-            fprintf(stderr, "Error creating message: %d:(%s)\n",
-                                            errno,
-                                            strerror(errno));
-            return res;
-        }
-    }
-
-    int ret = msgsnd(m_msgId, m_dataNode.data,
-                     m_dataNode.size, IPC_NOWAIT);
-    if (ret == -1) {
-        if (errno != EAGAIN) {
-            return res;
-        } else {
-            if (msgsnd(m_msgId, m_dataNode.data,
-                       m_dataNode.size, 0) == -1) {
-                res = false;
-            }
-        }
-    }
-    res = true;
-    return res;
-}
-
-bool msg::tryReceive(msg &sender)
-{
-    bool res = false;
-    m_msgId  = msgget(sender.getKey(), m_mask);
-    if (m_msgId == -1) {
-        // noone create it
-        if ((m_msgId= msgget(sender.getKey(), m_mask | IPC_CREAT)) == -1) {
-            fprintf(stderr, "Error receiving message: %d:(%s)\n",
-                                            errno,
-                                            strerror(errno));
-            return res;
-        }
-    }
-
-    if (msgrcv(sender.m_msgId, m_dataNode.data,
-               sender.m_dataNode.size + (sizeof(sender)), 0, IPC_NOWAIT) == -1) {
-        if (errno != ENOMSG) {
-            printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
-            return res;
-        }
-
-        if (msgrcv(m_msgId, m_currentMsg.data,
-                   m_dataNode.size, 0, 0) == -1) {
-            printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
-            return res;
-        }
-
-    }
-    res = true;
-    printf("Test: From key: (%d) - data: (%s)\n", sender.getKey(),
-           (char*)m_dataNode.data);
-    return res;
-}
-
 bool msg::send(int key, void* data)
 {
+    (void) data;
     bool res = false;
     m_msgId = msgget(key, m_mask);
     if (m_msgId == -1) {
@@ -160,6 +105,7 @@ bool msg::receive(int key)
 
     }
     res = true;
+    // test extraction
     msg* m = (msg*) buff;
     m->print();
 
@@ -175,6 +121,11 @@ void msg::setData(void *data, int size)
 {
     m_dataNode.data = data;
     m_dataNode.size = size;
+}
+
+void msg::setDestination(int dest)
+{
+    m_dest = dest;
 }
 
 msg::node_t msg::getData()
