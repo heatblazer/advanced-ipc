@@ -4,7 +4,12 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    daemon.cpp
+    daemon.cpp \
+    logwriter.cpp
 
 HEADERS += \
-    daemon.h
+    daemon.h \
+    logwriter.h \
+    defs.h
+
+LIBS += -lpthread

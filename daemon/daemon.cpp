@@ -7,6 +7,7 @@
 
 #include <sys/stat.h> // chmod
 #include <sys/mount.h> // mout fs
+#include <sys/resource.h>
 #include <unistd.h> // cwd
 #include <fcntl.h>
 
@@ -59,7 +60,9 @@ int Daemon::dummy(void *data)
 
 Daemon::Daemon()
 {
-
+    m_logger.create(0, NULL, 0, NULL);
+    m_logger.start();
+    while(1);
 }
 
 Daemon::~Daemon()
@@ -78,30 +81,43 @@ void Daemon::start()
 {
     umask(0);
 
+    struct rlimit rl;
+
+    if (getrlimit(RLIMIT_NOFILE, &rl) < 0) {
+        fprintf(stderr, "Error: (%d) : (%s)\n", errno,
+                strerror(errno));
+        exit(FORK_FAILED);
+    }
     if ((m_pid = fork()) < 0) {
+        fprintf(stderr, "Fork failed: (%d) : (%s)\n", errno,
+                strerror(errno));
+
         exit(FORK_FAILED);
     } else if (m_pid != 0) {
         exit(PARENT);
     } else {
-        setsid();
-
-        m_sig.sa_handler = SIG_IGN;
-        sigemptyset(&m_sig.sa_mask);
-        m_sig.sa_flags = 0;
-        
-        if(sigaction(SIGHUP, &m_sig, NULL) < 0) {
-            fprintf(stderr, "Can`t ignro SIGHUP\n");
-            exit(3);
-        }
-
-        char pwd[512]={0};
-        getcwd(pwd, sizeof(pwd)/sizeof(pwd[0]));
-
-        if (chdir(pwd) < 0) {
-            exit(FORK_FAILED);
-        }
-
+        // nothing here
     }
+    setsid();
+
+    m_sig.sa_handler = SIG_IGN;
+    sigemptyset(&m_sig.sa_mask);
+    m_sig.sa_flags = 0;
+
+    if(sigaction(SIGHUP, &m_sig, NULL) < 0) {
+        fprintf(stderr, "Can`t ignro SIGHUP\n");
+        exit(3);
+    }
+
+    char pwd[512]={0};
+    getcwd(pwd, sizeof(pwd)/sizeof(pwd[0]));
+
+    if (chdir(pwd) < 0) {
+        exit(FORK_FAILED);
+    }
+
+
+
 
     if (m_entry && m_data) {
         int res = m_entry(m_data); // user cb must be for(;;)
@@ -109,6 +125,11 @@ void Daemon::start()
         (void) res;
     }
 
+
+}
+
+void Daemon::error(const char *msg)
+{
 
 }
 
