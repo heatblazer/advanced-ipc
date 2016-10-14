@@ -11,6 +11,17 @@
 
 namespace ipc {
 
+msg::msg()
+    : m_key(-1),
+      m_dest(-1),
+      m_msgId(-1),
+      m_mask(-1),
+      m_serverKey(-1), // key to the router
+      m_dataNode({NULL, 0})
+{
+
+}
+
 msg::msg(int server, int key, int mask)
     : m_key(key),
       m_dest(-1),
@@ -55,17 +66,27 @@ bool msg::send(int key, void* data)
             return res;
         }
     }
-    char  buff[sizeof(msg)] = {0};
-    memcpy(buff, this, sizeof(msg));
+
+    msg m = *this;
+    char buff[sizeof(msg)]={0};
+    memcpy(buff, &m, sizeof(m));
 
     int ret = msgsnd(m_msgId, buff,
-                     sizeof(buff) * sizeof(char), IPC_NOWAIT);
+                     sizeof(msg), IPC_NOWAIT);
     if (ret == -1) {
         if (errno != EAGAIN) {
+            fprintf(stderr, "Error creating message: %d:(%s)\n",
+                                            errno,
+                                            strerror(errno));
+
             return res;
+
         } else {
             if (msgsnd(m_msgId, buff,
-                       sizeof(buff) * sizeof(char), 0) == -1) {
+                       sizeof(msg), 0) == -1) {
+                fprintf(stderr, "Error creating message: %d:(%s)\n",
+                                                errno,
+                                                strerror(errno));
                 res = false;
             }
         }

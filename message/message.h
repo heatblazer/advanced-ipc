@@ -18,7 +18,8 @@ class msg
         int size;
     } ;
 public:
-    explicit msg(int server, int key, int mask);
+    msg();
+    msg(int server, int key, int mask);
     msg(const msg& ref);
     ~msg(); // do we need to extend it? not for now
 
