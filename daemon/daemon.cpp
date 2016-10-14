@@ -92,6 +92,12 @@ void Daemon::start()
 
         m_sig.sa_handler = SIG_IGN;
         sigemptyset(&m_sig.sa_mask);
+        m_sig.sa_flags = 0;
+        
+        if(sigaction(SIGHUP, &m_sig, NULL) < 0) {
+            fprintf(stderr, "Can`t ignro SIGHUP\n");
+            exit(3);
+        }
 
         char pwd[512]={0};
         getcwd(pwd, sizeof(pwd)/sizeof(pwd[0]));

@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     daemon \
-    receiver
+    receiver \
+    message
