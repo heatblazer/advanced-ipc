@@ -11,13 +11,19 @@
 
 namespace ipc {
 
+union msg_u {
+    msg m;
+    char c[sizeof(msg)];
+};
+
+
+
 msg::msg()
     : m_key(-1),
       m_dest(-1),
       m_msgId(-1),
       m_mask(-1),
-      m_serverKey(-1), // key to the router
-      m_dataNode({NULL, 0})
+      m_serverKey(-1) // key to the router
 {
 
 }
@@ -27,25 +33,25 @@ msg::msg(int server, int key, int mask)
       m_dest(-1),
       m_msgId(-1),
       m_mask(mask),
-      m_serverKey(server), // key to the router
-      m_dataNode({NULL, 0})
+      m_serverKey(server)
 {
 
 }
-
 msg::msg(const msg &ref)
 {
     m_key = ref.m_key;
+    m_dest = ref.m_dest;
     m_msgId = ref.m_msgId;
     m_mask = ref.m_mask;
     m_serverKey = ref.m_serverKey;
-    m_dataNode = ref.m_dataNode;
 }
 
+#if 0
 msg::~msg()
 {
 
 }
+#endif
 
 int msg::getKey() const
 {
@@ -67,12 +73,17 @@ bool msg::send(int key, void* data)
         }
     }
 
-    msg m = *this;
-    char buff[sizeof(msg)]={0};
-    memcpy(buff, &m, sizeof(m));
+    struct {
+        long val;
+        char c[sizeof(msg)];
+    } msgbuff;
 
-    int ret = msgsnd(m_msgId, buff,
-                     sizeof(msg), IPC_NOWAIT);
+    msgbuff.val = sizeof(msg);
+    msg m = *this;
+    memcpy(msgbuff.c, &m, sizeof(msg));
+
+    int ret = msgsnd(m_msgId, &msgbuff,
+                     sizeof(msgbuff), IPC_NOWAIT);
     if (ret == -1) {
         if (errno != EAGAIN) {
             fprintf(stderr, "Error creating message: %d:(%s)\n",
@@ -82,8 +93,8 @@ bool msg::send(int key, void* data)
             return res;
 
         } else {
-            if (msgsnd(m_msgId, buff,
-                       sizeof(msg), 0) == -1) {
+            if (msgsnd(m_msgId, &msgbuff,
+                       sizeof(msgbuff), 0) == -1) {
                 fprintf(stderr, "Error creating message: %d:(%s)\n",
                                                 errno,
                                                 strerror(errno));
@@ -109,17 +120,23 @@ bool msg::receive(int key)
         }
     }
 
-    char buff[sizeof(msg)]={0};
+    struct {
+        long val;
+        char buff[sizeof(msg)];
+    } msgbuff;
 
-    if (msgrcv(m_msgId, buff,
-               sizeof(buff), 0, IPC_NOWAIT) == -1) {
+    msgbuff.val = sizeof(msg);
+    memcpy(msgbuff.buff, this, sizeof(msg));
+
+    if (msgrcv(m_msgId, &msgbuff,
+               sizeof(msgbuff), 0, IPC_NOWAIT) == -1) {
         if (errno != ENOMSG) {
             printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
             return res;
         }
 
-        if (msgrcv(m_msgId, buff,
-                   sizeof(buff), 0, 0) == -1) {
+        if (msgrcv(m_msgId, &msgbuff,
+                   sizeof(msgbuff), 0, 0) == -1) {
             printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
             return res;
         }
@@ -127,7 +144,7 @@ bool msg::receive(int key)
     }
     res = true;
     // test extraction
-    msg* m = (msg*) buff;
+    msg* m = (msg*) msgbuff.buff;
     m->print();
 
     return res;
@@ -140,8 +157,6 @@ void msg::setKey(int newkey)
 
 void msg::setData(void *data, int size)
 {
-    m_dataNode.data = data;
-    m_dataNode.size = size;
 }
 
 void msg::setDestination(int dest)
@@ -149,19 +164,17 @@ void msg::setDestination(int dest)
     m_dest = dest;
 }
 
-msg::node_t msg::getData()
-{
-    return m_dataNode;
-}
-
 void msg::print()
 {
     printf("class msg:\n"
            "key: [%d]\n"
            "id: [%d]\n"
+           "send to: [%d]\n"
            "mask: [%d]\n"
            "server: [%d]\n",
-           m_key, m_msgId, m_mask, m_serverKey);
+           m_key, m_msgId, m_dest,
+           m_mask,
+           m_serverKey);
 }
 
 }

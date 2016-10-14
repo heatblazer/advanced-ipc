@@ -24,7 +24,10 @@ int main(int argc, char** argv)
     }
 #endif
 
-    m1.send(4567, 0);
-    m2.receive(4567); // clear msg queue
+   ipc::msg opopo;
+   // m1.send(4567, 0);
+   m1.send(4567, 0);
+   m2.receive(4567);
+
 
 }
