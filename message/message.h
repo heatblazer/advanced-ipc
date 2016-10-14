@@ -23,12 +23,20 @@ public:
     virtual bool trySend(msg& receiver);
     virtual bool tryReceive(msg& sender);
 
+    // these functions will be sending keys via
+    // processes
+    bool send(int key, void *data);
+    bool receive(int key);
+
     int getKey() const;
     void setKey(int newkey);
     void setData(void* data, int size);
     node_t getData();
 
 private:
+    // we must be able to share the
+    // key and retrieve it to whoever got
+    //it
     int m_key;
     int m_msgId;
     int m_mask;

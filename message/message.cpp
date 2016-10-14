@@ -96,6 +96,71 @@ bool msg::tryReceive(msg &sender)
     return res;
 }
 
+bool msg::send(int key, void* data)
+{
+    bool res = false;
+    m_msgId = msgget(key, m_mask);
+    if (m_msgId == -1) {
+        // noone create it
+        if ((m_msgId = msgget(key, m_mask | IPC_CREAT)) == -1) {
+            fprintf(stderr, "Error creating message: %d:(%s)\n",
+                                            errno,
+                                            strerror(errno));
+            return res;
+        }
+    }
+    char buff[] = "1234567890";
+    int ret = msgsnd(m_msgId, buff,
+                     sizeof(buff) * sizeof(char), IPC_NOWAIT);
+    if (ret == -1) {
+        if (errno != EAGAIN) {
+            return res;
+        } else {
+            if (msgsnd(m_msgId, buff,
+                       sizeof(buff) * sizeof(char), 0) == -1) {
+                res = false;
+            }
+        }
+    }
+    res = true;
+    return res;
+}
+
+bool msg::receive(int key)
+{
+    bool res = false;
+    m_msgId  = msgget(key, m_mask);
+    if (m_msgId == -1) {
+        // noone create it
+        if ((m_msgId= msgget(key, m_mask | IPC_CREAT)) == -1) {
+            fprintf(stderr, "Error receiving message: %d:(%s)\n",
+                                            errno,
+                                            strerror(errno));
+            return res;
+        }
+    }
+
+    char buff[124]={0};
+    if (msgrcv(m_msgId, buff,
+               sizeof(buff), 0, IPC_NOWAIT) == -1) {
+        if (errno != ENOMSG) {
+            printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
+            return res;
+        }
+
+        if (msgrcv(m_msgId, buff,
+                   sizeof(buff), 0, 0) == -1) {
+            printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
+            return res;
+        }
+
+    }
+    res = true;
+    printf("Test: From key: (%d) - data: (%s)\n", key,
+           (char*)buff);
+    return res;
+}
+
 void msg::setKey(int newkey)
 {
     m_key = newkey;

@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
     ipc::msg m2(4567, 0666);
     m2.setData(data2, sizeof(data2));
-
+#if 0
     if (m1.trySend(m2)) {
         m2.tryReceive(m1);
     }
@@ -22,5 +22,9 @@ int main(int argc, char** argv)
     if (m2.trySend(m1)) {
         m1.tryReceive(m2);
     }
+#endif
+
+    m1.send(4567, 0);
+    while (m2.receive(4567)); // clear msg queue
 
 }
