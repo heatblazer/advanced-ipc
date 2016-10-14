@@ -17,7 +17,7 @@ class msg
         int size;
     } ;
 public:
-    explicit msg(int key, int mask);
+    explicit msg(int server, int key, int mask);
     virtual ~msg();
 
     virtual bool trySend(msg& receiver);
@@ -33,6 +33,7 @@ public:
     void setData(void* data, int size);
     node_t getData();
 
+    void print();
 private:
     // we must be able to share the
     // key and retrieve it to whoever got
@@ -41,6 +42,7 @@ private:
     int m_msgId;
     int m_mask;
 
+    int m_serverKey;
     node_t m_dataNode;
     node_t m_currentMsg;
 

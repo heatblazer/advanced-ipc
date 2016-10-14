@@ -11,10 +11,11 @@
 
 namespace ipc {
 
-msg::msg(int key, int mask)
+msg::msg(int server, int key, int mask)
     : m_key(key),
       m_msgId(-1),
       m_mask(mask),
+      m_serverKey(server), // key to the router
       m_dataNode({NULL, 0}),
       m_currentMsg({NULL, 0})
 {
@@ -109,7 +110,9 @@ bool msg::send(int key, void* data)
             return res;
         }
     }
-    char buff[] = "1234567890";
+    char  buff[sizeof(msg)] = {0};
+    memcpy(buff, this, sizeof(msg));
+
     int ret = msgsnd(m_msgId, buff,
                      sizeof(buff) * sizeof(char), IPC_NOWAIT);
     if (ret == -1) {
@@ -140,7 +143,8 @@ bool msg::receive(int key)
         }
     }
 
-    char buff[124]={0};
+    char buff[sizeof(msg)]={0};
+
     if (msgrcv(m_msgId, buff,
                sizeof(buff), 0, IPC_NOWAIT) == -1) {
         if (errno != ENOMSG) {
@@ -156,8 +160,9 @@ bool msg::receive(int key)
 
     }
     res = true;
-    printf("Test: From key: (%d) - data: (%s)\n", key,
-           (char*)buff);
+    msg* m = (msg*) buff;
+    m->print();
+
     return res;
 }
 
@@ -175,6 +180,16 @@ void msg::setData(void *data, int size)
 msg::node_t msg::getData()
 {
     return m_dataNode;
+}
+
+void msg::print()
+{
+    printf("class msg:\n"
+           "key: [%d]\n"
+           "id: [%d]\n"
+           "mask: [%d]\n"
+           "server: [%d]\n",
+           m_key, m_msgId, m_mask, m_serverKey);
 }
 
 }

@@ -8,10 +8,10 @@ int main(int argc, char** argv)
     char data1[] = "m1";
     char data2[] = "m2";
 
-    ipc::msg m1(1234, 0666);
+    ipc::msg m1(1234, 8910, 0666);
     m1.setData(data1, sizeof(data1));
 
-    ipc::msg m2(4567, 0666);
+    ipc::msg m2(1234, 4567, 0666);
     m2.setData(data2, sizeof(data2));
 #if 0
     if (m1.trySend(m2)) {
@@ -25,6 +25,6 @@ int main(int argc, char** argv)
 #endif
 
     m1.send(4567, 0);
-    while (m2.receive(4567)); // clear msg queue
+    m2.receive(4567); // clear msg queue
 
 }
