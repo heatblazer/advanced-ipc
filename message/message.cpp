@@ -45,14 +45,12 @@ msg::msg(const msg &ref)
     m_mask = ref.m_mask;
     m_serverKey = ref.m_serverKey;
 }
-
 #if 0
 msg::~msg()
 {
 
 }
 #endif
-
 int msg::getKey() const
 {
     return m_key;
@@ -73,14 +71,17 @@ bool msg::send(int key, void* data)
         }
     }
 
-    struct {
-        long val;
+    union u {
+        msg m;
         char c[sizeof(msg)];
-    } msgbuff;
+    };
+
+    struct  {
+        long val;
+        union u copy;
+    } msgbuff = {sizeof(msg), (*this)}; // avoid memcpyu
 
     msgbuff.val = sizeof(msg);
-    msg m = *this;
-    memcpy(msgbuff.c, &m, sizeof(msg));
 
     int ret = msgsnd(m_msgId, &msgbuff,
                      sizeof(msgbuff), IPC_NOWAIT);
