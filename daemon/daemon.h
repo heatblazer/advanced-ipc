@@ -12,10 +12,10 @@
 // tool for logging //
 #include "logwriter.h"
 
-// messages //
 #include "../message/message.h"
 
 namespace ipc {
+class msg;
 
 typedef int (*userCb)(void*);
 
@@ -40,6 +40,7 @@ private:
     userCb m_entry;
     struct sigaction m_sig;
     LogWriter m_logger;
+    msg         m_daemonMessage;
     std::vector<msg> m_messages;
 
 };

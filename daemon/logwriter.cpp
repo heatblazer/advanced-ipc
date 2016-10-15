@@ -29,6 +29,7 @@ void *LogWriter::worker(void *args)
     } while (lw->m_isRunning);
 
     close(fd);
+    return NULL;
 }
 
 LogWriter::LogWriter()

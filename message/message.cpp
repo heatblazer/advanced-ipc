@@ -21,7 +21,8 @@ msg::msg()
       m_dest(-1),
       m_msgId(-1),
       m_mask(-1),
-      m_serverKey(-1) // key to the router
+      m_serverKey(-1), // key to the router
+    m_isOk(false)
 {
 
 }
@@ -31,7 +32,8 @@ msg::msg(int server, int key, int mask)
       m_dest(-1),
       m_msgId(-1),
       m_mask(mask),
-      m_serverKey(server)
+      m_serverKey(server),
+      m_isOk(false)
 {
 
 }
@@ -43,6 +45,7 @@ msg::msg(const msg &ref)
     m_mask = ref.m_mask;
     m_serverKey = ref.m_serverKey;
     strncpy(m_name, ref.m_name, sizeof(m_name)/sizeof(m_name[0]));
+    m_isOk = ref.m_isOk;
 }
 /*
 msg::~msg()
@@ -70,6 +73,7 @@ bool msg::send(int key, void* data)
         }
     }
     // this is desired to ipc messaging
+    m_isOk = true;
     struct  {
         long val; // val is important
         copy_u buff;
@@ -101,9 +105,9 @@ bool msg::send(int key, void* data)
     return res;
 }
 
-bool msg::receive(int key)
+msg msg::receive(int key)
 {
-    bool res = false;
+    msg ret ;
     m_msgId  = msgget(key, m_mask);
     if (m_msgId == -1) {
         // noone create it
@@ -111,7 +115,7 @@ bool msg::receive(int key)
             fprintf(stderr, "Error receiving message: %d:(%s)\n",
                                             errno,
                                             strerror(errno));
-            return res;
+            return ret;
         }
     }
 
@@ -127,22 +131,27 @@ bool msg::receive(int key)
                sizeof(msgbuff), 0, IPC_NOWAIT) == -1) {
         if (errno != ENOMSG) {
             printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
-            return res;
+            return ret;
         }
 
         if (msgrcv(m_msgId, &msgbuff,
                    sizeof(msgbuff), 0, 0) == -1) {
             printf("ERRNO: (%d)/(%s)\n", errno, strerror(errno));
-            return res;
+            return ret;
         }
 
     }
-    res = true;
+
     // test extraction
     msg* m = (msg*) msgbuff.buff;
+    ret = *m;
     m->print();
+    return ret;
+}
 
-    return res;
+bool msg::ok()
+{
+    return m_isOk;
 }
 
 void msg::setKey(int newkey)
@@ -152,6 +161,8 @@ void msg::setKey(int newkey)
 
 void msg::setData(void *data, int size)
 {
+    (void) data;
+    (void) size;
 }
 
 void msg::setDestination(int dest)
@@ -178,5 +189,6 @@ void msg::setName(const char *n)
 {
     strncpy(m_name, n, sizeof(m_name)/sizeof(m_name[0]));
 }
+
 
 }

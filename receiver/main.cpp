@@ -21,6 +21,8 @@ public:
 
 int main(int argc, char *argv[])
 {
+    (void) argc;
+    (void) argv;
     int key, mask, msgid;
 
     key = 1234;

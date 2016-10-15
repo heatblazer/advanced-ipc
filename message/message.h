@@ -18,7 +18,8 @@ public:
     // these functions will be sending keys via
     // processes
     bool send(int key, void *data);
-    bool receive(int key);
+    msg receive(int key);
+    bool ok();
 
     int getKey() const;
     void setKey(int newkey);
@@ -37,6 +38,7 @@ private:
     int m_mask;
     int m_serverKey;    // key to the routing daemon
     char m_name[64];
+    bool m_isOk; //false by defaul
 };
 
 }
