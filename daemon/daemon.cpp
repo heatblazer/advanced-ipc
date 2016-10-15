@@ -34,18 +34,22 @@ int Daemon::dummy(void *data)
     for(;;) {
         usleep(100);
 
-        msg m = d->m_daemonMessage.receive(1234);
+        d->m_daemonMessage.receive(1234);
+#if 0
         if (m.ok()) {
+            d->m_logger.log(m.getMessage());
             d->m_messages.push_back(m);
         }
+#endif
     }
 
     return 0;
 }
 
 Daemon::Daemon()
+    : m_daemonMessage(1234, 1234, 0666)
 {
-    msg m();
+
 }
 
 Daemon::~Daemon()
@@ -63,6 +67,13 @@ int Daemon::create(void *user_data, userCb cb)
 
 void Daemon::start()
 {
+    // call the worker
+    if (m_entry && m_data) {
+        int res = m_entry(m_data); // user cb must be for(;;)
+        // handle res after entry finishes
+        (void) res;
+    }
+
     umask(0);
     struct rlimit rl;
 
@@ -120,13 +131,14 @@ void Daemon::start()
     fd0 = open("/dev/null", O_RDWR);
     fd1 = dup(0);
     fd2 = dup(0);
-
+#if 0
     // call the worker
     if (m_entry && m_data) {
         int res = m_entry(m_data); // user cb must be for(;;)
         // handle res after entry finishes
         (void) res;
     }
+#endif
 }
 
 void Daemon::error(const char *msg)

@@ -27,6 +27,7 @@ public:
     void setDestination(int dest);
     void print();
     void setName(const char* n);
+    char *getMessage(void);
 
 private:
     // we must be able to share the

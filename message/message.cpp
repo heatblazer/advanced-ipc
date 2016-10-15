@@ -107,7 +107,7 @@ bool msg::send(int key, void* data)
 
 msg msg::receive(int key)
 {
-    msg ret ;
+    msg ret(key, m_key, 0666);
     m_msgId  = msgget(key, m_mask);
     if (m_msgId == -1) {
         // noone create it
@@ -188,6 +188,24 @@ void msg::print()
 void msg::setName(const char *n)
 {
     strncpy(m_name, n, sizeof(m_name)/sizeof(m_name[0]));
+}
+
+char *msg::getMessage()
+{
+    static char msg[256] = {0};
+    sprintf(msg, "class msg:\n"
+           "name: [%s]\n"
+           "key: [%d]\n"
+           "id: [%d]\n"
+           "send to: [%d]\n"
+           "mask: [%d]\n"
+           "server: [%d]\n",
+           m_name,
+           m_key, m_msgId, m_dest,
+           m_mask,
+           m_serverKey);
+
+    return msg;
 }
 
 

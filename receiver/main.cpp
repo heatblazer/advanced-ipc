@@ -10,47 +10,27 @@
 #include <sys/msg.h>
 
 // this is a test project
-class msg
-{
-public:
-    int a;
-    int b;
-    int c;
-    int add_a_b_c(void) { return a+b+c;}
-};
+#include "message.h"
 
 int main(int argc, char *argv[])
 {
-    (void) argc;
-    (void) argv;
-    int key, mask, msgid;
 
-    key = 1234;
-    mask = 0666;
-    msgid = msgget(key, mask);
+    char data1[] = "m1";
+    char data2[] = "m2";
 
-    if (msgid == -1) {
-        if ((msgid = msgget(key, mask | IPC_CREAT)) == -1) {
-            exit(1);
-        }
-    }
+    ipc::msg m1(1234, 8910, 0666);
+    m1.setData(data1, sizeof(data1));
 
-    for(;;) {
-        char buff[sizeof(msg)] = {0};
-        if (msgrcv(msgid, &buff, sizeof(msg), 0, IPC_NOWAIT) == -1) {
-            if (errno != ENOMSG) {
-                exit(1);
-            }
-            usleep(50000);
-            if (msgrcv(msgid, &buff, sizeof(msg), 0, 0) == -1) {
-                exit(1);
-            }
-            msg* m = (msg*) buff;
-            printf("Got a message...from daemon: [%d][%d][%d]\n"
-                   "sum: [%d]\n",
-                   m->a, m->b, m->c, m->add_a_b_c());
-        }
-    }
+    ipc::msg m2(1234, 4567, 0666);
+    m2.setData(data2, sizeof(data2));
+
+
+    // m1.send(4567, 0);
+    m1.setName("ilianz");
+    m1.send(1234, 0);
+
+    m2.setName("vladi");
+    m2.send(1234, 0);
 
     return 0;
 }

@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 
+#include "message.h"
 #include "defs.h"
 
 namespace ipc {
@@ -20,9 +21,12 @@ public:
     void start();
     void stop();
     bool isRunning();
+    void log(const char* msg);
 private:
     bool m_isRunning;
     bool m_runner;
+    char m_buff[512];
+    pthread_mutex_t m_mutex;
 
 };
 
