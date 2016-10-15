@@ -35,7 +35,7 @@ private:
     int m_dest; // key to send to
     int m_msgId;
     int m_mask;
-    int m_serverKey;    
+    int m_serverKey;    // key to the routing daemon
     char m_name[64];
 };
 

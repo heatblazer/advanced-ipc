@@ -9,6 +9,7 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
+// this is a test project
 class msg
 {
 public:

@@ -11,12 +11,10 @@
 
 namespace ipc {
 
-union msg_u {
+union copy_u {
     msg m;
     char c[sizeof(msg)];
 };
-
-
 
 msg::msg()
     : m_key(-1),
@@ -71,15 +69,10 @@ bool msg::send(int key, void* data)
             return res;
         }
     }
-
-    union u {
-        msg m;
-        char c[sizeof(msg)];
-    };
-
+    // this is desired to ipc messaging
     struct  {
-        long val;
-        union u copy;
+        long val; // val is important
+        copy_u buff;
     } msgbuff = {sizeof(msg), (*this)}; // avoid memcpyu
 
     msgbuff.val = sizeof(msg);
