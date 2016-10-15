@@ -22,8 +22,6 @@
 // err //
 #include <errno.h>
 
-#include "../message/message.h"
-
 namespace ipc {
 
 int Daemon::dummy(void *data)
@@ -47,7 +45,7 @@ int Daemon::dummy(void *data)
 
 Daemon::Daemon()
 {
-
+    msg m();
 }
 
 Daemon::~Daemon()

@@ -1,11 +1,5 @@
 TEMPLATE = subdirs
+include(advanced-unix-ipc.pri)
 
-SUBDIRS += \
-    daemon \
-    receiver \
-    message
+SUBDIRS = message daemon receiver
 
-daemon.subdir = daemon
-message.subdir = message
-
-daemon.depends = message
