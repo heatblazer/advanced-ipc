@@ -31,8 +31,8 @@ private:
     // we must be able to share the
     // key and retrieve it to whoever got
     //it
-    int m_key;
-    int m_dest;
+    int m_key;  //own key
+    int m_dest; // key to send to
     int m_msgId;
     int m_mask;
     int m_serverKey;    

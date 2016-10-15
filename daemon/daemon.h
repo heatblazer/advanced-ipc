@@ -1,11 +1,19 @@
 #ifndef DAEMON_H
 #define DAEMON_H
 
+// unix api //
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 
+// stl //
+#include <vector>
+
+// tool for logging //
 #include "logwriter.h"
+
+// messages //
+#include "../message/message.h"
 
 namespace ipc {
 
@@ -32,6 +40,7 @@ private:
     userCb m_entry;
     struct sigaction m_sig;
     LogWriter m_logger;
+    std::vector<msg> m_messages;
 
 };
 

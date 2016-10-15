@@ -15,7 +15,8 @@ public:
     static void* worker(void* args);
     LogWriter();
     ~LogWriter();
-    bool create(int stack_size, void* user_data, int prio, cb proxy);
+    // typicaly for thread creation but params are unused here
+    bool create(int stack_size, void* user_data, int prio, cb proxyb);
     void start();
     void stop();
     bool isRunning();
