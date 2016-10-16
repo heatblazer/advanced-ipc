@@ -1,5 +1,5 @@
-#ifndef LOGWRITER_H
-#define LOGWRITER_H
+#ifndef THREAD_H
+#define THREAD_H
 
 #include <pthread.h>
 
@@ -10,26 +10,35 @@ namespace ipc {
 
 typedef void* (*cb)(void*);
 
-class LogWriter : public Policy<pthread_t>
+class Mutex : public Policy<pthread_mutex_t>
+{
+public:
+    Mutex();
+    ~Mutex();
+    void init();
+    void lock();
+    void unlock();
+};
+
+class Thread : public Policy<pthread_t>
 {
 public:
     static void* worker(void* args);
-    LogWriter();
-    ~LogWriter();
+    Thread();
+    ~Thread();
     // typicaly for thread creation but params are unused here
     bool create(int stack_size, void* user_data, int prio, cb proxyb);
-    void start();
     void stop();
+    void join();
     bool isRunning();
-    void log(const char* msg);
+
 private:
     bool m_isRunning;
     bool m_runner;
-    char m_buff[512];
     pthread_mutex_t m_mutex;
 
 };
 
 } // ipc
 
-#endif // LOGWRITER_H
+#endif // THREAD_H
