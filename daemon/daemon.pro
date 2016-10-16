@@ -5,11 +5,11 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     daemon.cpp \
-    logwriter.cpp
+    thread.cpp
 
 HEADERS += \
     daemon.h \
-    logwriter.h \
+    thread.h \
     defs.h
 
 LIBS += -lpthread

@@ -10,7 +10,7 @@
 #include <vector>
 
 // tool for logging //
-#include "logwriter.h"
+#include "thread.h"
 
 #include "../message/message.h"
 
@@ -22,6 +22,7 @@ typedef int (*userCb)(void*);
 class Daemon
 {
 public:
+    static void* job(void* args);
     static int dummy(void* data);
     enum ExitCodes {PARENT = 0, CHILD, FORK_FAILED};
 
@@ -39,7 +40,8 @@ private:
     pid_t m_pid;
     userCb m_entry;
     struct sigaction m_sig;
-    LogWriter m_logger;
+    Thread      m_logger;
+    Mutex       m_mutex;
     msg         m_daemonMessage;
     std::vector<msg> m_messages;
 

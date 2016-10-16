@@ -24,12 +24,32 @@
 
 namespace ipc {
 
+
+void *Daemon::job(void *args)
+{
+    Daemon* d = (Daemon*) args;
+    int fd = open("log.log", O_RDONLY | O_WRONLY | O_CREAT);
+    if (fd < 0) {
+        return NULL;
+    }
+
+    do {
+        usleep(100);
+        char msg[64]={"test message"};
+        d->m_mutex.lock();
+        write(fd, msg, sizeof(msg));
+        d->m_mutex.unlock();
+    } while (d->m_logger.isRunning());
+
+    close(fd);
+
+}
+
 int Daemon::dummy(void *data)
 {
     Daemon* d =  (Daemon*) data;
 
-    d->m_logger.create(0, NULL, 0, NULL);
-    d->m_logger.start();
+    d->m_logger.create(0, d, 0, Daemon::job);
 
     for(;;) {
         usleep(100);
@@ -49,7 +69,7 @@ int Daemon::dummy(void *data)
 Daemon::Daemon()
     : m_daemonMessage(1234, 1234, 0666)
 {
-
+    m_mutex.init();
 }
 
 Daemon::~Daemon()
