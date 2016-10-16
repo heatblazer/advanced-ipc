@@ -27,21 +27,24 @@ namespace ipc {
 
 void *Daemon::job(void *args)
 {
+    // here we log messagges
     Daemon* d = (Daemon*) args;
+
+#if 0
     int fd = open("log.log", O_RDONLY | O_WRONLY | O_CREAT);
     if (fd < 0) {
         return NULL;
     }
-
+#endif
     do {
         usleep(100);
-        char msg[64]={"test message"};
+   //     char msg[64]={"test message"};
         d->m_mutex.lock();
-        write(fd, msg, sizeof(msg));
+   //     write(fd, msg, sizeof(msg));
         d->m_mutex.unlock();
     } while (d->m_logger.isRunning());
 
-    close(fd);
+//    close(fd);
 
 }
 
