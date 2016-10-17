@@ -3,8 +3,9 @@
 
 namespace ipc {
 
-template <typename T> struct Policy
+template <typename T> class Policy
 {
+protected:
     T m_type;
 };
 
