@@ -9,10 +9,16 @@
 namespace ipc {
 
 
+pthread_t Thread::currentThread()
+{
+    return pthread_self();
+}
+
 Thread::Thread()
     : m_isRunning(false),
       m_runner(false)
 {
+    m_mutex.init();
 }
 
 Thread::~Thread()
@@ -24,7 +30,7 @@ bool Thread::create(int stack_size, void *user_data, int prio, cb proxy)
     bool ret = false;
     (void) stack_size;
     m_isRunning = true;
-    pthread_mutex_init(&m_mutex, NULL);
+
     int res = pthread_create(&m_type, NULL, proxy, user_data);
     if (res != 0) {
         return ret;

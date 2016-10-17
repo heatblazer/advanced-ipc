@@ -20,10 +20,23 @@ public:
     void unlock();
 };
 
+class BSem
+{
+public:
+    BSem();
+    ~BSem();
+    void init();
+private:
+    Mutex m_mutex;
+    pthread_cond_t m_cond;
+    int val;
+};
+
 class Thread : public Policy<pthread_t>
 {
 public:
     static void* worker(void* args);
+    static pthread_t currentThread();
     Thread();
     ~Thread();
     // typicaly for thread creation but params are unused here
@@ -35,7 +48,7 @@ public:
 private:
     bool m_isRunning;
     bool m_runner;
-    pthread_mutex_t m_mutex;
+    Mutex m_mutex;
 
 };
 
