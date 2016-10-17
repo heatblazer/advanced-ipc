@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 
     ipc::msg m2(1234, 4567, 0666);
     m2.setData(data2, sizeof(data2));
+    m2.setDestination(8910);
 
 
     // m1.send(4567, 0);

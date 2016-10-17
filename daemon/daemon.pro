@@ -22,3 +22,10 @@ else:unix: LIBS += -L$$OUT_PWD/../message/ -lmessage
 
 INCLUDEPATH += $$PWD/../message
 DEPENDPATH += $$PWD/../message
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../ring-buffer/release/ -lring-buffer
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../ring-buffer/debug/ -lring-buffer
+else:unix: LIBS += -L$$OUT_PWD/../ring-buffer/ -lring-buffer
+
+INCLUDEPATH += $$PWD/../ring-buffer
+DEPENDPATH += $$PWD/../ring-buffer

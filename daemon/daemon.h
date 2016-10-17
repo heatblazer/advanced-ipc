@@ -12,7 +12,8 @@
 // tool for logging //
 #include "thread.h"
 
-#include "../message/message.h"
+#include "message.h"
+#include "ringbuffer.h"
 
 namespace ipc {
 class msg;
@@ -43,7 +44,9 @@ private:
     Thread      m_logger;
     Mutex       m_mutex;
     msg         m_daemonMessage;
-    std::vector<msg> m_messages;
+    adt::List<msg> m_messages;
+
+
 
 };
 

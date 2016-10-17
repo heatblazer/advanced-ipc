@@ -21,8 +21,7 @@ msg::msg()
       m_dest(-1),
       m_msgId(-1),
       m_mask(-1),
-      m_serverKey(-1), // key to the router
-    m_isOk(false)
+      m_serverKey(-1) // key to the router
 {
 
 }
@@ -32,8 +31,7 @@ msg::msg(int server, int key, int mask)
       m_dest(-1),
       m_msgId(-1),
       m_mask(mask),
-      m_serverKey(server),
-      m_isOk(false)
+      m_serverKey(server)
 {
 
 }
@@ -45,14 +43,13 @@ msg::msg(const msg &ref)
     m_mask = ref.m_mask;
     m_serverKey = ref.m_serverKey;
     strncpy(m_name, ref.m_name, sizeof(m_name)/sizeof(m_name[0]));
-    m_isOk = ref.m_isOk;
 }
-/*
+
 msg::~msg()
 {
 
 }
-*/
+
 int msg::getKey() const
 {
     return m_key;
@@ -73,13 +70,13 @@ bool msg::send(int key, void* data)
         }
     }
     // this is desired to ipc messaging
-    m_isOk = true;
     struct  {
         long val; // val is important
-        copy_u buff;
-    } msgbuff = {sizeof(msg), (*this)}; // avoid memcpyu
+        char buff[sizeof(msg)];
+    } msgbuff ;
 
     msgbuff.val = sizeof(msg);
+    memcpy(msgbuff.buff, this, sizeof(*this));
 
     int ret = msgsnd(m_msgId, &msgbuff,
                      sizeof(msgbuff), IPC_NOWAIT);
@@ -97,10 +94,11 @@ bool msg::send(int key, void* data)
                 fprintf(stderr, "Error creating message: %d:(%s)\n",
                                                 errno,
                                                 strerror(errno));
-                res = false;
+                return res;
             }
         }
     }
+
     res = true;
     return res;
 }
@@ -145,14 +143,9 @@ msg msg::receive(int key)
     // test extraction
     msg* m = (msg*) msgbuff.buff;
     ret = *m;
-    m->print();
     return ret;
 }
 
-bool msg::ok()
-{
-    return m_isOk;
-}
 
 void msg::setKey(int newkey)
 {
@@ -168,21 +161,6 @@ void msg::setData(void *data, int size)
 void msg::setDestination(int dest)
 {
     m_dest = dest;
-}
-
-void msg::print()
-{
-    printf("class msg:\n"
-           "name: [%s]\n"
-           "key: [%d]\n"
-           "id: [%d]\n"
-           "send to: [%d]\n"
-           "mask: [%d]\n"
-           "server: [%d]\n",
-           m_name,
-           m_key, m_msgId, m_dest,
-           m_mask,
-           m_serverKey);
 }
 
 void msg::setName(const char *n)

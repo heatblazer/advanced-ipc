@@ -8,12 +8,11 @@ namespace ipc {
 
 class msg
 {
-
 public:
     msg();
     msg(int server, int key, int mask);
     msg(const msg& ref);
-    //~msg(); // do we need to extend it? not for now
+    ~msg(); // do we need to extend it? not for now
 
     // these functions will be sending keys via
     // processes
@@ -25,11 +24,10 @@ public:
     void setKey(int newkey);
     void setData(void* data, int size);
     void setDestination(int dest);
-    void print();
     void setName(const char* n);
     char *getMessage(void);
 
-private:
+public:
     // we must be able to share the
     // key and retrieve it to whoever got
     //it
@@ -39,7 +37,6 @@ private:
     int m_mask;
     int m_serverKey;    // key to the routing daemon
     char m_name[64];
-    bool m_isOk; //false by defaul
 };
 
 }

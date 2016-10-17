@@ -56,14 +56,11 @@ int Daemon::dummy(void *data)
 
     for(;;) {
         usleep(100);
-
-        d->m_daemonMessage.receive(1234);
-#if 0
-        if (m.ok()) {
-            d->m_logger.log(m.getMessage());
-            d->m_messages.push_back(m);
+        // receive anything sent to 1234
+        msg m = d->m_daemonMessage.receive(1234);
+        if (m.m_dest >= 0) {
+            m.send(m.m_dest, NULL);
         }
-#endif
     }
 
     return 0;
